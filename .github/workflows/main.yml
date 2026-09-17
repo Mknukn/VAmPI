@@ -21,12 +21,14 @@ jobs:
         continue-on-error: true
 
       - name: Bandit
+        env:
+            PYTHONWARNINGS: "ignore::SyntaxWarning"
         run: bandit -r . -f json -o bandit-results.json
         continue-on-error: true
 
       - name: Trufflehog
         run: |
-          trufflehog3 filesystem . --json > trufflehog-results.json
+          trufflehog filesystem . --json --no-update > trufflehog-results.json
         continue-on-error: true
 
       - name: Build VAmPI image
