@@ -26,7 +26,7 @@ jobs:
 
       - name: Trufflehog
         run: |
-          trufflehog filesystem . --json > trufflehog-results.json
+          trufflehog3 filesystem . --json > trufflehog-results.json
         continue-on-error: true
 
       - name: Trivy (filesystem/deps)
