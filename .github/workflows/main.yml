@@ -7,7 +7,7 @@ on:
 
 env:
   DD_URL: http://10.40.40.101:8080
-  PRODUCT_NAME: "API Platform"
+  PRODUCT_NAME: "VAmPI"
   ENGAGEMENT_NAME: "CI Scans"
 
 jobs:
