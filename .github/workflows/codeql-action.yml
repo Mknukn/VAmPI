@@ -1,0 +1,48 @@
+name: CodeQL to DefectDojo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DD_URL: http://10.40.40.101:8080
+  PRODUCT_NAME: "VAmPI"
+  ENGAGEMENT_NAME: "CI Scans"
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: python
+      - uses: github/codeql-action/analyze@v4
+        with:
+          output: results
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: results/*.sarif
+
+  import-codeql:
+    needs: codeql
+    runs-on: self-hosted
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: codeql-sarif
+      - name: Reimport CodeQL to DefectDojo
+        run: |
+          curl -sS -X POST "$DD_URL/api/v2/reimport-scan/" \
+            -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
+            -F "scan_type=SARIF" \
+            -F "file=@python.sarif" \
+            -F "product_name=$PRODUCT_NAME" \
+            -F "engagement_name=$ENGAGEMENT_NAME" \
+            -F "test_title=CodeQL - VAmPI" \
+            -F "auto_create_context=true" \
+            -F "close_old_findings=true"
